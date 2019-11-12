@@ -9,6 +9,7 @@ if (strlen($_SESSION['emplogin']) == 0) {
     if (isset($_POST['change'])) {
         $password = md5($_POST['password']);
         $newpassword = md5($_POST['newpassword']);
+        $confirmpassword = md5($_POST['confirmpassword']);
         $username = $_SESSION['emplogin'];
         $sql = "SELECT Password FROM tblemployees WHERE EmailId=:username and Password=:password";
         $query = $dbh->prepare($sql);
@@ -16,15 +17,20 @@ if (strlen($_SESSION['emplogin']) == 0) {
         $query->bindParam(':password', $password, PDO::PARAM_STR);
         $query->execute();
         $results = $query->fetchAll(PDO::FETCH_OBJ);
-        if ($query->rowCount() > 0) {
-            $con = "update tblemployees set Password=:newpassword where EmailId=:username";
-            $chngpwd1 = $dbh->prepare($con);
-            $chngpwd1->bindParam(':username', $username, PDO::PARAM_STR);
-            $chngpwd1->bindParam(':newpassword', $newpassword, PDO::PARAM_STR);
-            $chngpwd1->execute();
-            $msg = "Your Password succesfully changed";
+        if ($confirmpassword == $newpassword) {
+
+            if ($query->rowCount() > 0) {
+                $con = "update tblemployees set Password=:newpassword where EmailId=:username";
+                $chngpwd1 = $dbh->prepare($con);
+                $chngpwd1->bindParam(':username', $username, PDO::PARAM_STR);
+                $chngpwd1->bindParam(':newpassword', $newpassword, PDO::PARAM_STR);
+                $chngpwd1->execute();
+                $msg = "Your Password succesfully changed";
+            } else {
+                $error = "Your current password is wrong";
+            }
         } else {
-            $error = "Your current password is wrong";
+            $error = "please check confirm password is invalid";
         }
     }
     ?>
@@ -95,6 +101,11 @@ if (strlen($_SESSION['emplogin']) == 0) {
                                         <div class="input-field col s12">
                                             <input id="password" type="password" name="newpassword" class="validate" autocomplete="off" required>
                                             <label for="password">New Password</label>
+                                        </div>
+
+                                        <div class="input-field col s12">
+                                            <input id="password" type="password" name="confirmpassword" class="validate" autocomplete="off" required>
+                                            <label for="password">Confirm Password</label>
                                         </div>
 
                                         <div class="input-field col s12">
